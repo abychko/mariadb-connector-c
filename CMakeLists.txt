@@ -414,85 +414,10 @@ IF(WIN32 AND WITH_MSI AND CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
   ADD_SUBDIRECTORY(win/packaging)
 ENDIF()
 MESSAGE1(SYSTEM_PROCESSOR "SYSTEM processor: ${CMAKE_SYSTEM_PROCESSOR}")
-SET(CPACK_PACKAGE_VENDOR "MariaDB Corporation Ab")
-SET(CPACK_PACKAGE_DESCRIPTION "MariaDB Connector/C. A library for connecting to MariaDB and MySQL servers")
-SET(CPACK_PACKAGE_NAME "mariadb_connector_c")
 STRING(TOLOWER ${CMAKE_SYSTEM_NAME} system_name)
-SET(CPACK_RESOURCE_FILE_LICENSE "${CC_SOURCE_DIR}/COPYING.LIB")
-SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CC_SOURCE_DIR}/README")
+
 INCLUDE(cmake/ConnectorName.cmake)
-IF(NOT PACKAGE_STATUS_SUFFIX)
-  SET(CPACK_SOURCE_PACKAGE_FILE_NAME "mariadb-connector-c-${CPACK_PACKAGE_VERSION}-src")
-  IF(PACKAGE_PLATFORM_SUFFIX)
-    SET(CPACK_PACKAGE_FILE_NAME "mariadb-connector-c-${CPACK_PACKAGE_VERSION}-${PACKAGE_PLATFORM_SUFFIX}")
-  ELSE()
-    SET(CPACK_PACKAGE_FILE_NAME "mariadb-connector-c-${CPACK_PACKAGE_VERSION}-${system_name}-${CMAKE_SYSTEM_PROCESSOR}")
-  ENDIF()
-ELSE()
-  SET(CPACK_SOURCE_PACKAGE_FILE_NAME "mariadb-connector-c-${CPACK_PACKAGE_VERSION}-${PACKAGE_STATUS_SUFFIX}-src")
-  IF(PACKAGE_PLATFORM_SUFFIX)
-    SET(CPACK_PACKAGE_FILE_NAME "mariadb-connector-c-${CPACK_PACKAGE_VERSION}-${PACKAGE_STATUS_SUFFIX}-${PACKAGE_PLATFORM_SUFFIX}")
-  ELSE()
-    SET(CPACK_PACKAGE_FILE_NAME "mariadb-connector-c-${CPACK_PACKAGE_VERSION}-${PACKAGE_STATUS_SUFFIX}-${system_name}-${CMAKE_SYSTEM_PROCESSOR}")
-  ENDIF()
-ENDIF()
-# Build source packages
-IF(GIT_BUILD_SRCPKG)
-  # get branch name
-  EXECUTE_PROCESS(COMMAND ${GIT_EXECUTABLE} show-branch OUTPUT_VARIABLE git_branch)
-  STRING(REGEX MATCH "\\[([^]]+)\\]" git_branch ${git_branch})
-  STRING(REGEX REPLACE "\\[|\\]" "" GIT_BRANCH ${git_branch})
-  MESSAGE1(GIT_BRANCH "${GIT_BRANCH}")
-  IF(WIN32)
-    EXECUTE_PROCESS(COMMAND ${GIT_EXECUTABLE} archive ${GIT_BRANCH} --format=zip --prefix=${CPACK_SOURCE_PACKAGE_FILE_NAME}/ --output=${CPACK_SOURCE_PACKAGE_FILE_NAME}.zip)
-  ELSE()
-    EXECUTE_PROCESS(COMMAND ${GIT_EXECUTABLE} archive ${GIT_BRANCH} --format=zip --prefix=${CPACK_SOURCE_PACKAGE_FILE_NAME}/ --output=${CPACK_SOURCE_PACKAGE_FILE_NAME}.zip)
-    EXECUTE_PROCESS(COMMAND ${GIT_EXECUTABLE} archive ${GIT_BRANCH} --format=tar --prefix=${CPACK_SOURCE_PACKAGE_FILE_NAME}/ --output=${CPACK_SOURCE_PACKAGE_FILE_NAME}.tar)
-    EXECUTE_PROCESS(COMMAND gzip -9 -f ${CPACK_SOURCE_PACKAGE_FILE_NAME}.tar)
-  ENDIF()
-ENDIF()
-
-SET(CPACK_SOURCE_IGNORE_FILES
-\\\\.git/
-\\\\.gitignore
-\\\\.gitattributes
-CMakeCache\\\\.txt
-cmake_dist\\\\.cmake
-CPackConfig\\\\.cmake
-mariadb_config\\\\.c$
-\\\\.build/
-html/
-unittest
-/cmake_install.cmake
-/CTestTestfile.cmake
-/CPackSourceConfig.cmake
-/CMakeFiles/
-/version_resources/
-/_CPack_Packages/
-\\\\.gz$
-\\\\.zip$
-mariadb_config/mariadb_config$
-/CMakeFiles/
-/version_resources/
-/_CPack_Packages/
-Makefile$
-include/my_config\\\\.h$
-)
-
-IF(WITH_TEST_SRCPKG)
-  SET(PACKAGE_FILE ${CC_SOURCE_DIR}/package.name)
-  FILE(REMOVE ${PACKAGE_FILE})
-  FILE(WRITE ${PACKAGE_FILE} ${CPACK_SOURCE_PACKAGE_FILE_NAME})
-ENDIF()
-
-IF(WIN32)
-  SET(CPACK_GENERATOR "ZIP")
-  SET(CPACK_SOURCE_GENERATOR "ZIP")
-ELSE()
-  SET(CPACK_GENERATOR "TGZ")
-  SET(CPACK_SOURCE_GENERATOR "TGZ")
-ENDIF()
-INCLUDE(CPack)
+INCLUDE(cmake/packaging.cmake)
 
 IF(WITH_EXTERNAL_ZLIB)
   SET(zlib_status ${WITH_EXTERNAL_ZLIB})
